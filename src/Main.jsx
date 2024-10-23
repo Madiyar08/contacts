@@ -17,7 +17,7 @@ export default function Component() {
 
   useEffect(() => {
     axios
-      .get("http://192.168.56.1:8000/api/markets/", config)
+      .get("https://235b-213-230-111-92.ngrok-free.app/api/markets/", config)
       .then(function (response) {
         const filteredMarkets = response.data.filter(market => market.market_format === 'Korzinka');
         setMarket(filteredMarkets);
