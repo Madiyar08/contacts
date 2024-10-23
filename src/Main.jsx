@@ -17,7 +17,7 @@ export default function Component() {
 
   useEffect(() => {
     axios
-      .get("http://localhost:8000/api/markets/", config)
+      .get("http://192.168.56.1:8000/api/markets/", config)
       .then(function (response) {
         const filteredMarkets = response.data.filter(market => market.market_format === 'Korzinka');
         setMarket(filteredMarkets);
