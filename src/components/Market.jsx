@@ -1,110 +1,119 @@
+import React from "react";
 import CopyButton from "./CopyButton";
+
 function Market({
-  marketNumber,
-  marketName,
-  marketAddress,
-  landmark,
-  workTime,
-  phone,
-  grillPhoneNumber,
-  managerFullName,
-  managerPhone,
-  managerWorkTime,
-  managerDayOff,
-  supervisorOneFullName,
-  supervisorOnePhone,
-  supervisorOneWorkTime,
-  supervisorOneDayOff,
-  supervisorTwoFullName,
-  supervisorTwoPhone,
-  supervisorTwoWorkTime,
-  supervisorTwoDayOff,
-  senoirCashierFullName,
-  senoirCashierPhone,
-  senoirCashierWorkTime,
-  senoirCashierDayOff,
-  additionalInformation,
-}) {
+  id,
+  market_name,
+  market_address,
+  market_orientation,
+  market_work_time,
+  market_phone,
+  market_grill,
+  manager_full_name,
+  manager_phone,
+  manager_work_time,
+  manager_day_off,
+  supervisor_one_full_name,
+  supervisor_one_phone,
+  supervisor_one_work_time,
+  supervisor_one_day_off,
+  supervisor_two_full_name,
+  supervisor_two_phone,
+  supervisor_two_work_time,
+  supervisor_two_day_off,
+  supervisor_three_full_name,
+  supervisor_three_phone,
+  supervisor_three_work_time,
+  supervisor_three_day_off,
+  additional_info,
+  isDarkMode,
+  updated_at
+})
+
+{
+  const borderColor = isDarkMode ? 'border-gray-600' : 'border-gray-300';
+  const cellBg = isDarkMode ? 'bg-gray-800' : 'bg-white';
+  const formattedDate = new Date(updated_at).toLocaleString("ru-RU", {
+    year: 'numeric',
+    month: 'numeric',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    // timeZoneName: 'short', // Указывает временную зону
+  });
+
   return (
-    <>
-      <div class="grid grid-cols-6 text-center text-lg font-bold mb-[10px]">
-        <div className="market border space-y-2  ">
-          <div className="flex justify-center">
-            <span>{marketNumber}.</span>
-            <h2>{marketName}</h2>
-          </div>
-          <div>
-            <p className="italic text-base text-gray-700">{marketAddress}</p>
-            <p className="italic text-base text-gray-700">
-              Ориентир: {landmark}
-            </p>
-          </div>
-          <div className="text-red-600">
-            <p>Режим работы:</p>
-            <p>{workTime}</p>
-          </div>
+    <div className={`grid grid-cols-6 text-center text-sm font-bold border-b ${borderColor}`}>
+    
+      <div className={`border ${borderColor} ${cellBg} p-2 space-y-2`}>
+        <div className="flex justify-center items-center space-x-1">
+          
+          <h2 className="truncate">{market_name}</h2>
         </div>
-        <div className="manager border space-y-2 ">
-          <h2>{managerFullName}</h2>
-          <CopyButton textToCopy={managerPhone} />
-          <p>
-            Режим работы: <br /> {managerWorkTime}
-          </p>
-          <p className="text-red-600">
-            Выходной: <br /> {managerDayOff}
-          </p>
-        </div>
-        <div className="supervisorOne border space-y-2">
-          <h2>{supervisorOneFullName}</h2>
-          <CopyButton textToCopy={supervisorOnePhone} />
-          <p>
-            Режим работы: <br /> {supervisorOneWorkTime}
-          </p>
-          <p className="text-red-600">
-            Выходной: <br /> {supervisorOneDayOff}
-          </p>
-        </div>
-        <div className="supervisorTwo border space-y-2 ">
-          <h2>{supervisorTwoFullName}</h2>
-          <CopyButton textToCopy={supervisorTwoPhone} />
-          <p>
-            Режим работы: <br />
-            {supervisorTwoWorkTime}
-          </p>
-          <p className="text-red-600">
-            Выходной: <br /> {supervisorTwoDayOff}
-          </p>
-        </div>
-
-        <div className="seniorCashier border space-y-2 ">
-          <h2>{senoirCashierFullName}</h2>
-          <CopyButton textToCopy={senoirCashierPhone} />
-          <p>
-            Режим работы: <br />
-            {senoirCashierWorkTime}
-          </p>
-          <p className="text-red-600">
-            Выходной: <br />
-            {senoirCashierDayOff}
-          </p>
-        </div>
-
-        <div className="additionalInformation border ">
-          <p>{additionalInformation}</p>
-          <div className="space-y-1">
-            <p>
-              Городской номер:
-              <span>
-                <CopyButton textToCopy={phone} />
-              </span>
-            </p>
-            <p>
-              Гриль: <CopyButton textToCopy={grillPhoneNumber} />
-            </p>
-          </div>
-        </div>
+        <p className={` text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-700'} `}>Адрес: {market_address}</p>
+        <p className={`italic text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-700'} `}>Ориентир: {market_orientation}</p>
+        <p className={`${isDarkMode ? 'text-red-400' : 'text-red-600'} text-xs`}>
+          Режим работы:<br />{market_work_time}
+        </p>
       </div>
-    </>
+      <div className={`border ${borderColor} ${cellBg} p-2 space-y-3`}>
+        {manager_full_name != null && manager_full_name != "" && (<> <h2 className="truncate">{manager_full_name}</h2>
+          <CopyButton textToCopy={manager_phone} isDarkMode={isDarkMode} />
+          <p className="text-xs">
+            Режим работы:<br />{manager_work_time}
+          </p>
+          <p className={`${isDarkMode ? 'text-red-400' : 'text-red-600'} text-xs`}>
+            Выходной: {manager_day_off}
+          </p>
+        </>)}
+      </div>
+      <div className={`border ${borderColor} ${cellBg} p-2 space-y-3 `}>
+     {( supervisor_one_full_name !=null && supervisor_one_full_name != "" && <> <h2 className="truncate">{supervisor_one_full_name}</h2>
+        <CopyButton textToCopy={supervisor_one_phone} isDarkMode={isDarkMode} />
+        <p className="text-xs">
+          Режим работы: {supervisor_one_work_time}
+        </p>
+        <p className={`${isDarkMode ? 'text-red-400' : 'text-red-600'} text-xs`}>
+          Выходной: {supervisor_one_day_off}
+          </p>
+          </>)}
+      </div>
+      <div className={`border ${borderColor} ${cellBg} p-2 space-y-3`}>
+        {supervisor_two_full_name !=null && supervisor_two_full_name != "" && (<><h2 className="truncate">{supervisor_two_full_name}</h2>
+          <CopyButton textToCopy={supervisor_two_phone} isDarkMode={isDarkMode} />
+          <p className="text-xs">
+            Режим работы:{supervisor_two_work_time}
+          </p>
+          <p className={`${isDarkMode ? 'text-red-400' : 'text-red-600'} text-xs`}>
+            Выходной: {supervisor_two_day_off}
+          </p>
+        </>)}
+      </div>
+      <div className={`border ${borderColor} ${cellBg} p-2 space-y-3`}>
+        {supervisor_three_full_name != null && supervisor_three_full_name != ""  && ( 
+         <><h2 className="truncate">{supervisor_three_full_name}</h2>
+        <CopyButton textToCopy={supervisor_three_phone} isDarkMode={isDarkMode} />
+        <p className="text-xs">
+          Режим работы:<br />{supervisor_three_work_time}
+        </p>
+        <p className={`${isDarkMode ? 'text-red-400' : 'text-red-600'} text-xs`}>
+          Выходной: {supervisor_three_day_off}
+        </p>
+        </> ) }
+      </div>
+      <div className={`border ${borderColor} ${cellBg} p-2 space-y-3`}>
+        <p className="text-xs mb-1">{additional_info}</p>
+        <p className="text-xs">
+          Городской номер:
+           <CopyButton textToCopy={market_phone} isDarkMode={isDarkMode} />
+        </p>
+        <p className="text-xs">
+          Гриль: <CopyButton textToCopy={market_grill} isDarkMode={isDarkMode} />
+        </p>
+        <p className="text-[10px]">Данные маркета обновлены в: {formattedDate}</p>
+      </div>
+    </div>
   );
 }
 

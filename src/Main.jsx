@@ -1,42 +1,48 @@
 import { useEffect, useState } from "react";
 import Market from "./components/Market";
+import ChatComponent from "./components/ChatComponent";
 import axios from "axios";
+import { FaSun, FaMoon } from "react-icons/fa";
 
-function Main() {
+export default function Component() {
   const [market, setMarket] = useState([]);
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  const IsNotNumber = 'Нет'
   const headers = {
     "Content-Type": "application/json",
   };
   const config = {
     headers: headers,
   };
+
   useEffect(() => {
     axios
-      .get("http://localhost:3000/markets", config)
+      .get("http://localhost:8000/api/markets/", config)
       .then(function (response) {
-        // handle success
-        setMarket(response.data);
-        
+        const filteredMarkets = response.data.filter(market => market.market_format === 'Korzinka');
+        setMarket(filteredMarkets);
+        // setMarket(response.data);
       })
       .catch(function (error) {
-        // handle error
         console.log(error);
-      })
-      .finally(function () {
-        // always executed
       });
   }, []);
+
+  const toggleDarkMode = () => {
+    setIsDarkMode(!isDarkMode);
+  };
+
   return (
-    <>
-      <header className="bg-red-800">
-        <a className="flex space-x-3 p-5" target="_parent" href="nasvyazi.uz">
+    <div className={`min-h-screen flex flex-col ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-white text-black'}`}>
+      <header className={`${isDarkMode ? 'bg-gray-800' : 'bg-red-800'} p-4 flex justify-between items-center`}>
+        <div className="flex items-center space-x-2">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"
             strokeWidth={1.5}
             stroke="currentColor"
-            className="w-8 h-8 text-white"
+            className="w-6 h-6 text-white"
           >
             <path
               strokeLinecap="round"
@@ -47,59 +53,76 @@ function Main() {
           <h1 className="text-white font-bold text-xl">
             Контактные номера магазинов
           </h1>
-        </a>
+        </div>
+        <button
+          onClick={toggleDarkMode}
+          className={`p-2 rounded-full ${
+            isDarkMode ? 'bg-yellow-400 text-gray-900' : 'bg-gray-800 text-white'
+          } flex items-center justify-center`}
+        >
+          {isDarkMode ? <FaSun className="w-6 h-6" /> : <FaMoon className="w-6 h-6" />}
+        </button>
       </header>
-      <div class="grid grid-cols-6 bg-blue-300 text-center text-lg font-bold  ">
-        <div className="border">Маркет</div>
-        <div className="border">Менеджер магазина</div>
-        <div className="text-center border">
+
+      <div className={`grid grid-cols-6 ${isDarkMode ? 'bg-gray-700' : 'bg-blue-300'} text-center text-sm font-bold`}>
+        <div className="border p-2">Маркет</div>
+        <div className="border p-2">Менеджер магазина</div>
+        <div className="border p-2">
           Заведующий залом <br />
           1-смена
         </div>
-        <div className="text-center border">
+        <div className="border p-2">
           Заведующий залом <br />
           2-смена
         </div>
-        <div className="text-center border">Старший Кассир</div>
-        <div className="text-center border">Дополнительная информация</div>
-      </div>
-      <div className="flex justify-center bg-red-100">
-        <h1 className="text-red-600 font-bold text-3xl">Korzinka</h1>
+        <div className="border p-2">
+        Заведующий залом 3-смена  или <br /> Старший Кассир <br /> 
+        </div>
+        <div className="border p-2">Дополнительная информация</div>
       </div>
 
+      <div className={`flex justify-center ${isDarkMode ? 'bg-gray-800' : 'bg-red-100'} p-4`}>
+        <h1 className={`${isDarkMode ? 'text-red-400' : 'text-red-600'} font-bold text-3xl`}>Korzinka</h1>
+      </div>
+
+      <div className="flex-grow overflow-auto">
       {
         (market != null,
         market.map((market) => (
           <Market
+          isDarkMode={isDarkMode}
             key={market.id}
-            marketNumber={market.id}
-            marketName={market.marketName}
-            marketAddress={market.marketAdress}
-            landmark={market.marketLandmark}
-            workTime={market.marketWorkTime}
-            grillPhoneNumber={`9.${market.marketGrill}`}
-            phone={`9.${market.marketPhone}`}
-            managerFullName={market.managerFullName}
-            managerPhone={`9.${market.managerPhone}`}
-            managerWorkTime={market.managerWorkTime}
-            managerDayOff={market.managerDayOff}
-            supervisorOneFullName={market.supervisorOneFullName}
-            supervisorOnePhone={`9.${market.supervisorOnePhone}`}
-            supervisorOneWorkTime={market.supervisorOneWorkTime}
-            supervisorOneDayOff={market.supervisorOneDayOff}
-            supervisorTwoFullName={market.supervisorTwoFullName}
-            supervisorTwoPhone={`9.${market.supervisorTwoPhone}`}
-            supervisorTwoWorkTime={market.supervisorTwoWorkTime}
-            supervisorTwoDayOff={market.supervisorTwoDayOff}
-            senoirCashierFullName={market.seiorCashierFullName}
-            senoirCashierPhone={`9.${market.seiorCashierPhone}`}
-            senoirCashierWorkTime={market.seiorCashierWorkTime}
-            senoirCashierDayOff={market.seiorCashierDayOff}
+            id={market.id}
+            market_name={market.market_name}
+            market_address={market.market_address}
+            market_orientation={market.market_orientation}
+            market_work_time={market.market_work_time}
+            market_grill={market.market_grill ? `9.${market.market_grill}`: IsNotNumber }
+            market_phone={market.market_phone ? `9.${market.market_phone} `: IsNotNumber }
+            manager_full_name={market.manager_full_name }
+            manager_phone={`9.${market.manager_phone}`}
+            manager_work_time={market.manager_work_time}
+            manager_day_off={market.manager_day_off}
+            supervisor_one_full_name={market.supervisor_one_full_name}
+            supervisor_one_phone={`9.${market.supervisor_one_phone}`}
+            supervisor_one_work_time={market.supervisor_one_work_time}
+            supervisor_one_day_off={market.supervisor_one_day_off}
+            supervisor_two_full_name={market.supervisor_two_full_name}
+            supervisor_two_phone={`9.${market.supervisor_two_phone}`}
+            supervisor_two_work_time={market.supervisor_two_work_time}
+            supervisor_two_day_off={market.supervisor_two_day_off}
+            supervisor_three_full_name={market.supervisor_three_full_name}
+            supervisor_three_work_time={market.supervisor_three_work_time}
+            supervisor_three_day_off={market.supervisor_three_day_off}
+            supervisor_three_phone={`9.${market.supervisor_three_phone}`}
+            additional_info={market.additional_info}
+            updated_at={market.updated_at}
           />
         )))
       }
-    </>
+      </div>
+
+      <ChatComponent isDarkMode={isDarkMode} />
+    </div>
   );
 }
-
-export default Main;

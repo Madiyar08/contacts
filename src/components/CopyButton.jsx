@@ -1,27 +1,29 @@
 import React, { useState } from 'react';
 
-const CopyButton = ({ textToCopy }) => {
+function CopyButton({ textToCopy, isDarkMode }) {
   const [copied, setCopied] = useState(false);
-
-  const handleCopyClick = () => {
+  const handleCopy = () => {
     navigator.clipboard.writeText(textToCopy)
       .then(() => {
-        setCopied(true);
-        setTimeout(() => setCopied(false), 1000); // Reset "Copied" message after 2 seconds
+        setTimeout(() => alert('Текст скопирован!'), 500);;
       })
-      .catch(err => console.error('Failed to copy text: ', err));
+      .catch(err => {
+        console.error('Ошибка при копировании: ', err);
+      });
   };
 
   return (
-    <div className="mt-4">
-      <button
-        onClick={handleCopyClick}
-        className={`bg-blue-500 hover:bg-blue-700 text-white font-bold px-2 rounded ${copied ? 'bg-green-500' : ''}`}
-      >
-        {copied ? 'Copied!' : `${textToCopy}`}
-      </button>
-    </div>
+    <button
+      onClick={handleCopy}
+      className={`px-2 py-1 ml-2 text-xs rounded ${
+        isDarkMode
+          ? 'bg-blue-600 hover:bg-blue-700 text-white'
+          : 'bg-blue-100 hover:bg-blue-200 text-blue-800'
+      }`}
+    >
+      {textToCopy}
+    </button>
   );
-};
+}
 
 export default CopyButton;
