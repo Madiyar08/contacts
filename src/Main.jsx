@@ -19,9 +19,11 @@ export default function Component() {
     axios
       .get("https://235b-213-230-111-92.ngrok-free.app/api/markets/", config)
       .then(function (response) {
-        const filteredMarkets = response.data.filter(market => market.market_format === 'Korzinka');
-        setMarket(filteredMarkets);
-        // setMarket(response.data);
+        if (Array.isArray(response.data)) {
+          const filteredMarkets = response.data.filter(market => market.market_format === 'Korzinka');
+          setMarket(filteredMarkets);
+        } else {
+          console.error('Expected an array but got:', response.data);
       })
       .catch(function (error) {
         console.log(error);
