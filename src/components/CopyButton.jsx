@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 function CopyButton({ textToCopy, isDarkMode }) {
-  const [copied, setCopied] = useState(false);
+  // const [copied, setCopied] = useState(false);
   const handleCopy = () => {
     navigator.clipboard.writeText(textToCopy)
       .then(() => {

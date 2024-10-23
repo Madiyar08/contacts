@@ -58,7 +58,7 @@ function Market({
         </p>
       </div>
       <div className={`border ${borderColor} ${cellBg} p-2 space-y-3`}>
-        {manager_full_name != null && manager_full_name != "" && (<> <h2 className="truncate">{manager_full_name}</h2>
+        {manager_full_name !== null && manager_full_name !== "" && (<> <h2 className="truncate">{manager_full_name}</h2>
           <CopyButton textToCopy={manager_phone} isDarkMode={isDarkMode} />
           <p className="text-xs">
             Режим работы:<br />{manager_work_time}
@@ -69,7 +69,7 @@ function Market({
         </>)}
       </div>
       <div className={`border ${borderColor} ${cellBg} p-2 space-y-3 `}>
-     {( supervisor_one_full_name !=null && supervisor_one_full_name != "" && <> <h2 className="truncate">{supervisor_one_full_name}</h2>
+     {( supervisor_one_full_name !== null && supervisor_one_full_name !== "" && <> <h2 className="truncate">{supervisor_one_full_name}</h2>
         <CopyButton textToCopy={supervisor_one_phone} isDarkMode={isDarkMode} />
         <p className="text-xs">
           Режим работы: {supervisor_one_work_time}
@@ -80,7 +80,7 @@ function Market({
           </>)}
       </div>
       <div className={`border ${borderColor} ${cellBg} p-2 space-y-3`}>
-        {supervisor_two_full_name !=null && supervisor_two_full_name != "" && (<><h2 className="truncate">{supervisor_two_full_name}</h2>
+        {supervisor_two_full_name !== null && supervisor_two_full_name !== "" && (<><h2 className="truncate">{supervisor_two_full_name}</h2>
           <CopyButton textToCopy={supervisor_two_phone} isDarkMode={isDarkMode} />
           <p className="text-xs">
             Режим работы:{supervisor_two_work_time}
@@ -91,7 +91,7 @@ function Market({
         </>)}
       </div>
       <div className={`border ${borderColor} ${cellBg} p-2 space-y-3`}>
-        {supervisor_three_full_name != null && supervisor_three_full_name != ""  && ( 
+        {supervisor_three_full_name !== null && supervisor_three_full_name !== ""  && ( 
          <><h2 className="truncate">{supervisor_three_full_name}</h2>
         <CopyButton textToCopy={supervisor_three_phone} isDarkMode={isDarkMode} />
         <p className="text-xs">
