@@ -6,6 +6,11 @@ import { FaSun, FaMoon } from "react-icons/fa";
 
 export default function Component() {
   const [market, setMarket] = useState([]);
+  const [korzinkaMarkets, setKorzinkaMarket] = useState([]);
+  const [diskont, setDiskont] = useState([]);
+  const [mahalla, setMahalla] = useState([]);
+  const [flo, setFlo] = useState([]);
+  const [redtag, setRedtag] = useState([]);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const IsNotNumber = 'Нет'
   const headers = {
@@ -20,8 +25,16 @@ export default function Component() {
       .get("http://127.0.0.1:8000/api/markets/", config)
       .then(function (response) {
         if (Array.isArray(response.data)) {
-          const filteredMarkets = response.data.filter(market => market.market_format === 'Korzinka');
-          setMarket(filteredMarkets);
+          const korzinkaMarkets = response.data.filter(korzinkaMarkets => korzinkaMarkets.market_format === 'Korzinka');
+          const mahalla = response.data.filter(mahalla => mahalla.market_format === 'Korzinka Mahalla');
+          const diskont = response.data.filter(diskont => diskont.market_format === 'Korzinka Diskont');
+          const flo = response.data.filter(flo => flo.market_format === 'FLO');
+          const redtag = response.data.filter(redtag => redtag.market_format === 'REDTAG');
+          setMarket(korzinkaMarkets);
+          setMahalla(mahalla);
+          setDiskont(diskont);
+          setFlo(flo)
+          setRedtag(redtag)
         } else {
           console.error('Expected an array but got:', response.data)
         }
@@ -34,6 +47,9 @@ export default function Component() {
   const toggleDarkMode = () => {
     setIsDarkMode(!isDarkMode);
   };
+
+
+  
 
   return (
     <div className={`min-h-screen flex flex-col ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-white text-black'}`}>
@@ -90,7 +106,7 @@ export default function Component() {
 
       <div className="flex-grow overflow-auto">
       {
-        (market != null,
+        (korzinkaMarkets != null,
         market.map((market) => (
           <Market
           isDarkMode={isDarkMode}
@@ -125,6 +141,161 @@ export default function Component() {
       }
       </div>
 
+      <div className={`flex justify-center ${isDarkMode ? 'bg-gray-800' : 'bg-green-100'} p-4`}>
+        <h1 className={`${isDarkMode ? 'text-green-400' : 'text-green-600'} font-bold text-3xl`}>Mahalla</h1>
+      </div>
+
+      {
+        (mahalla != null,
+        mahalla.map((market) => (
+          <Market
+          isDarkMode={isDarkMode}
+            key={market.id}
+            id={market.id}
+            market_name={market.market_name}
+            market_address={market.market_address}
+            market_orientation={market.market_orientation}
+            market_work_time={market.market_work_time}
+            market_grill={market.market_grill ? `9.${market.market_grill}`: IsNotNumber }
+            market_phone={market.market_phone ? `9.${market.market_phone} `: IsNotNumber }
+            manager_full_name={market.manager_full_name }
+            manager_phone={`9.${market.manager_phone}`}
+            manager_work_time={market.manager_work_time}
+            manager_day_off={market.manager_day_off}
+            supervisor_one_full_name={market.supervisor_one_full_name}
+            supervisor_one_phone={`9.${market.supervisor_one_phone}`}
+            supervisor_one_work_time={market.supervisor_one_work_time}
+            supervisor_one_day_off={market.supervisor_one_day_off}
+            supervisor_two_full_name={market.supervisor_two_full_name}
+            supervisor_two_phone={`9.${market.supervisor_two_phone}`}
+            supervisor_two_work_time={market.supervisor_two_work_time}
+            supervisor_two_day_off={market.supervisor_two_day_off}
+            supervisor_three_full_name={market.supervisor_three_full_name}
+            supervisor_three_work_time={market.supervisor_three_work_time}
+            supervisor_three_day_off={market.supervisor_three_day_off}
+            supervisor_three_phone={`9.${market.supervisor_three_phone}`}
+            additional_info={market.additional_info}
+            updated_at={market.updated_at}
+          />
+        )))
+      }
+
+      <div className={`flex justify-center ${isDarkMode ? 'bg-gray-800' : 'bg-yellow-100'} p-4`}>
+        <h1 className={`${isDarkMode ? 'text-yellow-400' : 'text-yellow-600'} font-bold text-3xl`}>Diskont</h1>
+      </div>
+      {
+        (diskont != null,
+        diskont.map((market) => (
+          <Market
+          isDarkMode={isDarkMode}
+            key={market.id}
+            id={market.id}
+            market_name={market.market_name}
+            market_address={market.market_address}
+            market_orientation={market.market_orientation}
+            market_work_time={market.market_work_time}
+            market_grill={market.market_grill ? `9.${market.market_grill}`: IsNotNumber }
+            market_phone={market.market_phone ? `9.${market.market_phone} `: IsNotNumber }
+            manager_full_name={market.manager_full_name }
+            manager_phone={`9.${market.manager_phone}`}
+            manager_work_time={market.manager_work_time}
+            manager_day_off={market.manager_day_off}
+            supervisor_one_full_name={market.supervisor_one_full_name}
+            supervisor_one_phone={`9.${market.supervisor_one_phone}`}
+            supervisor_one_work_time={market.supervisor_one_work_time}
+            supervisor_one_day_off={market.supervisor_one_day_off}
+            supervisor_two_full_name={market.supervisor_two_full_name}
+            supervisor_two_phone={`9.${market.supervisor_two_phone}`}
+            supervisor_two_work_time={market.supervisor_two_work_time}
+            supervisor_two_day_off={market.supervisor_two_day_off}
+            supervisor_three_full_name={market.supervisor_three_full_name}
+            supervisor_three_work_time={market.supervisor_three_work_time}
+            supervisor_three_day_off={market.supervisor_three_day_off}
+            supervisor_three_phone={`9.${market.supervisor_three_phone}`}
+            additional_info={market.additional_info}
+            updated_at={market.updated_at}
+          />
+        )))
+      }
+      <div className={`flex justify-center ${isDarkMode ? 'bg-gray-800' : 'bg-red-100'} p-4`}>
+        <h1 className={`${isDarkMode ? 'text-red-400' : 'text-red-600'} font-bold text-3xl`}>REDTAG</h1>
+      </div>
+      {
+        (redtag != null,
+          redtag.map((market) => (
+          <Market
+          isDarkMode={isDarkMode}
+            key={market.id}
+            id={market.id}
+            market_name={market.market_name}
+            market_address={market.market_address}
+            market_orientation={market.market_orientation}
+            market_work_time={market.market_work_time}
+            market_grill={market.market_grill ? `9.${market.market_grill}`: IsNotNumber }
+            market_phone={market.market_phone ? `9.${market.market_phone} `: IsNotNumber }
+            manager_full_name={market.manager_full_name }
+            manager_phone={`9.${market.manager_phone}`}
+            manager_work_time={market.manager_work_time}
+            manager_day_off={market.manager_day_off}
+            supervisor_one_full_name={market.supervisor_one_full_name}
+            supervisor_one_phone={`9.${market.supervisor_one_phone}`}
+            supervisor_one_work_time={market.supervisor_one_work_time}
+            supervisor_one_day_off={market.supervisor_one_day_off}
+            supervisor_two_full_name={market.supervisor_two_full_name}
+            supervisor_two_phone={`9.${market.supervisor_two_phone}`}
+            supervisor_two_work_time={market.supervisor_two_work_time}
+            supervisor_two_day_off={market.supervisor_two_day_off}
+            supervisor_three_full_name={market.supervisor_three_full_name}
+            supervisor_three_work_time={market.supervisor_three_work_time}
+            supervisor_three_day_off={market.supervisor_three_day_off}
+            supervisor_three_phone={`9.${market.supervisor_three_phone}`}
+            additional_info={market.additional_info}
+            updated_at={market.updated_at}
+          />
+        )))
+      }
+      <div className={`flex justify-center ${isDarkMode ? 'bg-gray-800' : 'bg-orange-100'} p-4`}>
+        <h1 className={`${isDarkMode ? 'text-orange-400' : 'text-orange-600'} font-bold text-3xl`}>FLO</h1>
+      </div>
+      {
+        (flo != null,
+        flo.map((market) => (
+          <Market
+          isDarkMode={isDarkMode}
+            key={market.id}
+            id={market.id}
+            market_name={market.market_name}
+            market_address={market.market_address}
+            market_orientation={market.market_orientation}
+            market_work_time={market.market_work_time}
+            market_grill={market.market_grill ? `9.${market.market_grill}`: IsNotNumber }
+            market_phone={market.market_phone ? `9.${market.market_phone} `: IsNotNumber }
+            manager_full_name={market.manager_full_name }
+            manager_phone={`9.${market.manager_phone}`}
+            manager_work_time={market.manager_work_time}
+            manager_day_off={market.manager_day_off}
+            supervisor_one_full_name={market.supervisor_one_full_name}
+            supervisor_one_phone={`9.${market.supervisor_one_phone}`}
+            supervisor_one_work_time={market.supervisor_one_work_time}
+            supervisor_one_day_off={market.supervisor_one_day_off}
+            supervisor_two_full_name={market.supervisor_two_full_name}
+            supervisor_two_phone={`9.${market.supervisor_two_phone}`}
+            supervisor_two_work_time={market.supervisor_two_work_time}
+            supervisor_two_day_off={market.supervisor_two_day_off}
+            supervisor_three_full_name={market.supervisor_three_full_name}
+            supervisor_three_work_time={market.supervisor_three_work_time}
+            supervisor_three_day_off={market.supervisor_three_day_off}
+            supervisor_three_phone={`9.${market.supervisor_three_phone}`}
+            additional_info={market.additional_info}
+            updated_at={market.updated_at}
+          />
+        )))
+      }
+
+      <div className={`flex justify-center ${isDarkMode ? 'bg-gray-800' : 'bg-purple-100'} p-4`}>
+        <h1 className={`${isDarkMode ? 'text-purple-400' : 'text-purple-600'} font-bold text-3xl`}>FRANCHISE</h1>
+      </div>
+      <p className="text-red-500 text-xl font-bold my-5 mx-auto">Скоро тут появится данные франшиз!</p>
       <ChatComponent isDarkMode={isDarkMode} />
     </div>
   );

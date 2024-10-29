@@ -61,7 +61,7 @@ function Market({
         {manager_full_name !== null && manager_full_name !== "" && (<> <h2 className="truncate">{manager_full_name}</h2>
           <CopyButton textToCopy={manager_phone} isDarkMode={isDarkMode} />
           <p className="text-xs">
-            Режим работы:<br />{manager_work_time}
+            Режим работы: {manager_work_time}
           </p>
           <p className={`${isDarkMode ? 'text-red-400' : 'text-red-600'} text-xs`}>
             Выходной: {manager_day_off}
@@ -95,7 +95,7 @@ function Market({
          <><h2 className="truncate">{supervisor_three_full_name}</h2>
         <CopyButton textToCopy={supervisor_three_phone} isDarkMode={isDarkMode} />
         <p className="text-xs">
-          Режим работы:<br />{supervisor_three_work_time}
+          Режим работы: {supervisor_three_work_time}
         </p>
         <p className={`${isDarkMode ? 'text-red-400' : 'text-red-600'} text-xs`}>
           Выходной: {supervisor_three_day_off}
