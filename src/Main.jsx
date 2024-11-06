@@ -6,7 +6,7 @@ import { FaSun, FaMoon } from "react-icons/fa";
 
 export default function Component() {
   const [market, setMarket] = useState([]);
-  const [korzinkaMarkets, setKorzinkaMarket] = useState([]);
+  // const [korzinkaMarkets, setKorzinkaMarket] = useState([]);
   const [diskont, setDiskont] = useState([]);
   const [mahalla, setMahalla] = useState([]);
   const [flo, setFlo] = useState([]);
@@ -22,7 +22,7 @@ export default function Component() {
 
   useEffect(() => {
     axios
-      .get("http://127.0.0.1:8000/api/markets/", config)
+      .get("https://market-contacts-api.onrender.com/api/markets/", config)
       .then(function (response) {
         if (Array.isArray(response.data)) {
           const korzinkaMarkets = response.data.filter(korzinkaMarkets => korzinkaMarkets.market_format === 'Korzinka');
@@ -106,7 +106,7 @@ export default function Component() {
 
       <div className="flex-grow overflow-auto">
       {
-        (korzinkaMarkets != null,
+        (market != null,
         market.map((market) => (
           <Market
           isDarkMode={isDarkMode}
