@@ -23,6 +23,7 @@ export default function Component() {
     axios
       .get("https://market-contacts-api.onrender.com/api/markets/", config)
       .then(function (response) {
+        console.log(response.data)
         if (Array.isArray(response.data)) {
           const korzinkaMarkets = response.data.filter(
             (korzinkaMarkets) => korzinkaMarkets.market_format === "Korzinka"
@@ -58,10 +59,10 @@ export default function Component() {
   };
 
   const [isLoading, setIsLoading] = useState(true);
-
   useEffect(() => {
     setTimeout(() => setIsLoading(false), 2000);
   }, []);
+
 
   return (
     <div
@@ -110,10 +111,11 @@ export default function Component() {
       </header>
 
       <div
-        className={`grid grid-cols-6 ${
+        className={`grid grid-cols-8 ${
           isDarkMode ? "bg-gray-700" : "bg-blue-300"
         } text-center text-sm font-bold`}
       >
+        <div className="border p-2">№</div>
         <div className="border p-2">Маркет</div>
         <div className="border p-2">Менеджер магазина</div>
         <div className="border p-2">
@@ -127,6 +129,7 @@ export default function Component() {
         <div className="border p-2">
           Заведующий залом 3-смена или <br /> Старший Кассир <br />
         </div>
+        <div className="border p-2">Городской и гриль</div>
         <div className="border p-2">Дополнительная информация</div>
       </div>
 

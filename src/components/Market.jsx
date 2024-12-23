@@ -43,9 +43,15 @@ function Market({
     // timeZoneName: 'short', // Указывает временную зону
   });
 
+  
+
   return (
-    <div className={`grid grid-cols-6 text-center text-sm font-bold border-b ${borderColor}`}>
+    <div className={`grid grid-cols-8 text-center text-sm font-bold border-b ${borderColor}`}>
     
+    <div className={`border ${borderColor} ${cellBg} p-2 space-y-2`}>
+        <p>{id}</p>
+      </div>
+
       <div className={`border ${borderColor} ${cellBg} p-2 space-y-2`}>
         <div className="flex justify-center items-center space-x-1">
           
@@ -111,6 +117,11 @@ function Market({
         <p className="text-xs">
           Гриль: <CopyButton textToCopy={market_grill} isDarkMode={isDarkMode} />
         </p>
+        <p className="text-[10px]">Данные маркета обновлены в: {formattedDate}</p>
+      </div>
+
+      <div className={`border ${borderColor} ${cellBg} p-2 space-y-3`}>
+        <p className="text-xs mb-1">{additional_info}</p>
         <p className="text-[10px]">Данные маркета обновлены в: {formattedDate}</p>
       </div>
     </div>
