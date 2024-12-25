@@ -5,9 +5,9 @@ import {
     faCommentAlt, faEllipsisH, faGift, 
     faExchangeAlt, faEye, faCopy, faSignInAlt,
     faPlus, faTrash, faSave, faEdit, 
-    faLanguage, faCheck, faTimes 
+    faLanguage, faCheck, faTimes, faRobot,
+    faPaperPlane
 } from '@fortawesome/free-solid-svg-icons';
-import { faFolder } from '@fortawesome/free-solid-svg-icons/faFolder';
 
 const ADMIN_USERNAME = 'admin';
 const ADMIN_PASSWORD = 'admin123';
@@ -23,52 +23,39 @@ export default function Request() {
     const [newCategory, setNewCategory] = useState({ title: '', icon: '' });
     const [newContent, setNewContent] = useState({ uzbek: '', russian: '' });
     const [editingCategory, setEditingCategory] = useState(null);
+    const [chatInput, setChatInput] = useState('');
+    const [chatOutput, setChatOutput] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
-        loadCategories();
+        // Initialize with some demo data
+        setCategories([
+            {
+                id: '1',
+                title: 'Вакансии',
+                icon: 'faBriefcase',
+                contents: [
+                    {
+                        id: '1',
+                        uzbek: `Bizda mavjud bo'sh ish o'rinlari`,
+                        russian: 'Доступные вакансии в нашей компании'
+                    }
+                ]
+            },
+            {
+                id: '2',
+                title: 'Обмен товара',
+                icon: 'faExchangeAlt',
+                contents: [
+                    {
+                        id: '2',
+                        uzbek: 'Mahsulotni almashtirish tartibi',
+                        russian: 'Порядок обмена товара'
+                    }
+                ]
+            }
+        ]);
     }, []);
-
-    const loadCategories = () => {
-        const savedCategories = localStorage.getItem('categories');
-        if (savedCategories) {
-            setCategories(JSON.parse(savedCategories));
-        } else {
-            // Демо данные, если локальное хранилище пусто
-            const initialCategories = [
-                {
-                    id: '1',
-                    title: 'Вакансии',
-                    icon: faBriefcase,
-                    contents: [
-                        {
-                            id: '1',
-                            uzbek: `Bizda mavjud bo'sh ish o'rinlari`,
-                            russian: 'Доступные вакансии в нашей компании'
-                        }
-                    ]
-                },
-                {
-                    id: '2',
-                    title: 'Обмен товара',
-                    icon: faExchangeAlt,
-                    contents: [
-                        {
-                            id: '2',
-                            uzbek: 'Mahsulotni almashtirish tartibi',
-                            russian: 'Порядок обмена товара'
-                        }
-                    ]
-                }
-            ];
-            localStorage.setItem('categories', JSON.stringify(initialCategories));
-            setCategories(initialCategories);
-        }
-    };
-
-    const saveToLocalStorage = (updatedCategories) => {
-        localStorage.setItem('categories', JSON.stringify(updatedCategories));
-        setCategories(updatedCategories);
-    };
 
     const showToast = (message) => {
         setToast({ show: true, message });
@@ -95,22 +82,25 @@ export default function Request() {
     const handleAddCategory = () => {
         if (!newCategory.title.trim()) return;
         
-        const updatedCategories = [...categories, {
-            id: Date.now().toString(),
-            title: newCategory.title,
-            icon: newCategory.icon || faFolder,
-            contents: []
-        }];
+        setCategories(prevCategories => [
+            ...prevCategories,
+            {
+                id: Date.now().toString(),
+                title: newCategory.title,
+                icon: newCategory.icon || 'faFolder',
+                contents: []
+            }
+        ]);
         
-        saveToLocalStorage(updatedCategories);
         setNewCategory({ title: '', icon: '' });
         showToast('Категория успешно добавлена');
     };
 
     const handleDeleteCategory = (categoryId) => {
         if (window.confirm('Вы уверены, что хотите удалить эту категорию?')) {
-            const updatedCategories = categories.filter(c => c.id !== categoryId);
-            saveToLocalStorage(updatedCategories);
+            setCategories(prevCategories => 
+                prevCategories.filter(c => c.id !== categoryId)
+            );
             showToast('Категория успешно удалена');
         }
     };
@@ -118,38 +108,81 @@ export default function Request() {
     const handleAddContent = () => {
         if (!selectedCategory || !newContent.uzbek.trim() || !newContent.russian.trim()) return;
 
-        const updatedCategories = categories.map(category => {
-            if (category.id === selectedCategory) {
-                return {
-                    ...category,
-                    contents: [...category.contents, {
-                        id: Date.now().toString(),
-                        uzbek: newContent.uzbek,
-                        russian: newContent.russian
-                    }]
-                };
-            }
-            return category;
-        });
+        setCategories(prevCategories => 
+            prevCategories.map(category => {
+                if (category.id === selectedCategory) {
+                    return {
+                        ...category,
+                        contents: [...category.contents, {
+                            id: Date.now().toString(),
+                            uzbek: newContent.uzbek,
+                            russian: newContent.russian
+                        }]
+                    };
+                }
+                return category;
+            })
+        );
 
-        saveToLocalStorage(updatedCategories);
         setNewContent({ uzbek: '', russian: '' });
         showToast('Контент успешно добавлен');
     };
 
     const handleDeleteContent = (categoryId, contentId) => {
-        const updatedCategories = categories.map(category => {
-            if (category.id === categoryId) {
-                return {
-                    ...category,
-                    contents: category.contents.filter(content => content.id !== contentId)
-                };
-            }
-            return category;
-        });
-
-        saveToLocalStorage(updatedCategories);
+        setCategories(prevCategories => 
+            prevCategories.map(category => {
+                if (category.id === categoryId) {
+                    return {
+                        ...category,
+                        contents: category.contents.filter(content => content.id !== contentId)
+                    };
+                }
+                return category;
+            })
+        );
         showToast('Контент успешно удален');
+    };
+
+    const handleChatSubmit = async (e) => {
+        e.preventDefault();
+        setIsLoading(true);
+
+        try {
+            const response = await fetch('/api/chatgpt', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ text: chatInput }),
+            });
+
+            if (!response.ok) {
+                throw new Error('Ошибка при обработке запроса');
+            }
+
+            const data = await response.json();
+            setChatOutput(data.result);
+        } catch (error) {
+            console.error('Ошибка:', error);
+            setChatOutput('Произошла ошибка при обработке вашего запроса.');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleChatCopy = () => {
+        navigator.clipboard.writeText(chatOutput).then(() => {
+            showToast('Текст скопирован в буфер обмена');
+        }).catch(err => {
+            console.error('Ошибка при копировании текста: ', err);
+            showToast('Ошибка при копировании текста');
+        });
+    };
+
+    const handleChatSave = () => {
+        // Здесь будет логика сохранения в базу данных
+        console.log('Сохранение в базу данных:', { chatInput, chatOutput });
+        showToast('Результат сохранен');
     };
 
     return (
@@ -163,14 +196,18 @@ export default function Request() {
                     </h1>
                     <div className="flex gap-3">
                         <button
-                            onClick={() => {
-                                setCurrentView('categories');
-                                loadCategories();
-                            }}
+                            onClick={() => setCurrentView('categories')}
                             className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
                         >
                             <FontAwesomeIcon icon={faHome} />
                             Главная
+                        </button>
+                        <button
+                            onClick={() => setCurrentView('chatgpt')}
+                            className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors"
+                        >
+                            <FontAwesomeIcon icon={faRobot} />
+                            Помощник оператора
                         </button>
                         <button
                             onClick={() => setShowLoginModal(true)}
@@ -243,6 +280,79 @@ export default function Request() {
                             <FontAwesomeIcon icon={faHome} />
                             Вернуться к категориям
                         </button>
+                    </div>
+                )}
+
+                {currentView === 'chatgpt' && (
+                    <div className="bg-white rounded-lg shadow-md p-6">
+                        <h2 className="text-2xl font-medium mb-6">Помощник оператора</h2>
+                        <form onSubmit={handleChatSubmit} className="mb-6">
+                            <div className="mb-4">
+                                <label htmlFor="chatInput" className="block text-sm font-medium text-gray-700 mb-2">
+                                    Введите текст на узбекском языке:
+                                </label>
+                                <textarea
+                                    id="chatInput"
+                                    value={chatInput}
+                                    onChange={(e) => setChatInput(e.target.value)}
+                                    className="w-full px-3 py-2 text-gray-700 border rounded-lg focus:outline-none focus:border-blue-500"
+                                    rows="6"
+                                    placeholder="Введите текст обращения здесь..."
+                                ></textarea>
+                            </div>
+                            <button
+                                type="submit"
+                                disabled={isLoading}
+                                className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition duration-300 flex items-center justify-center"
+                            >
+                                {isLoading ? (
+                                    <span className="loader"></span>
+                                ) : (
+                                    <>
+                                        <FontAwesomeIcon icon={faPaperPlane} className="mr-2" />
+                                        Отправить
+                                    </>
+                                )}
+                            </button>
+                        </form>
+
+                        {chatOutput && (
+                            <div className="bg-gray-100 p-4 rounded-lg">
+                                <h3 className="text-lg font-semibold mb-2 text-gray-800">Результат (на русском языке):</h3>
+                                <p className="text-gray-700 mb-4">{chatOutput}</p>
+                                <div className="flex justify-end space-x-2">
+                                    <button
+                                        onClick={handleChatCopy}
+                                        className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg transition duration-300 flex items-center"
+                                    >
+                                        <FontAwesomeIcon icon={faCopy} className="mr-2" />
+                                        Копировать
+                                    </button>
+                                    <button
+                                        onClick={handleChatSave}
+                                        className="bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 px-4 rounded-lg transition duration-300 flex items-center"
+                                    >
+                                        <FontAwesomeIcon icon={faSave} className="mr-2" />
+                                        Сохранить
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+
+                        <style jsx>{`
+                            .loader {
+                                border: 4px solid #f3f3f3;
+                                border-top: 4px solid #3498db;
+                                border-radius: 50%;
+                                width: 24px;
+                                height: 24px;
+                                animation: spin 1s linear infinite;
+                            }
+                            @keyframes spin{
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+                        `}</style>
                     </div>
                 )}
 
