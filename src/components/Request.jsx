@@ -1,13 +1,22 @@
+// Request.jsx
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
-    faHome, faLock, faBriefcase, faStar, 
-    faCommentAlt, faEllipsisH, faGift, 
-    faExchangeAlt, faEye, faCopy, faSignInAlt,
-    faPlus, faTrash, faSave, faEdit, 
-    faLanguage, faCheck, faTimes, faRobot,
-    faPaperPlane
+    faHome, faLock, faBriefcase, 
+    faExchangeAlt, faEye, faCopy, 
+    faRobot, faPaperPlane, faSave,
+    faPlus, faTrash, faEdit,
+    faSignInAlt, faLanguage
 } from '@fortawesome/free-solid-svg-icons';
+
+const API_URL = 'http://localhost:3000/categories';
+
+// Icon mapping object
+const iconMap = {
+    'faBriefcase': faBriefcase,
+    'faExchangeAlt': faExchangeAlt
+};
 
 const ADMIN_USERNAME = 'admin';
 const ADMIN_PASSWORD = 'admin123';
@@ -16,46 +25,29 @@ export default function Request() {
     const [categories, setCategories] = useState([]);
     const [currentView, setCurrentView] = useState('categories');
     const [selectedCategory, setSelectedCategory] = useState(null);
-    const [showLoginModal, setShowLoginModal] = useState(false);
-    const [loginData, setLoginData] = useState({ username: '', password: '' });
-    const [toast, setToast] = useState({ show: false, message: '' });
-    const [isAdmin, setIsAdmin] = useState(false);
-    const [newCategory, setNewCategory] = useState({ title: '', icon: '' });
-    const [newContent, setNewContent] = useState({ uzbek: '', russian: '' });
-    const [editingCategory, setEditingCategory] = useState(null);
     const [chatInput, setChatInput] = useState('');
     const [chatOutput, setChatOutput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [toast, setToast] = useState({ show: false, message: '' });
+    const [showLoginModal, setShowLoginModal] = useState(false);
+    const [loginData, setLoginData] = useState({ username: '', password: '' });
+    const [isAdmin, setIsAdmin] = useState(false);
+    const [newCategory, setNewCategory] = useState({ title: '', icon: '' });
+    const [newContent, setNewContent] = useState({ uzbek: '', russian: '' });
 
     useEffect(() => {
-        // Initialize with some demo data
-        setCategories([
-            {
-                id: '1',
-                title: 'Вакансии',
-                icon: 'faBriefcase',
-                contents: [
-                    {
-                        id: '1',
-                        uzbek: `Bizda mavjud bo'sh ish o'rinlari`,
-                        russian: 'Доступные вакансии в нашей компании'
-                    }
-                ]
-            },
-            {
-                id: '2',
-                title: 'Обмен товара',
-                icon: 'faExchangeAlt',
-                contents: [
-                    {
-                        id: '2',
-                        uzbek: 'Mahsulotni almashtirish tartibi',
-                        russian: 'Порядок обмена товара'
-                    }
-                ]
-            }
-        ]);
+        fetchCategories();
     }, []);
+
+    const fetchCategories = async () => {
+        try {
+            const response = await axios.get(API_URL);
+            setCategories(response.data);
+        } catch (error) {
+            console.error('Error fetching categories:', error);
+            showToast('Ошибка при загрузке категорий');
+        }
+    };
 
     const showToast = (message) => {
         setToast({ show: true, message });
@@ -73,74 +65,79 @@ export default function Request() {
         }
     };
 
+    const handleAddCategory = async () => {
+        if (!newCategory.title.trim()) return;
+        
+        try {
+            const response = await axios.post(API_URL, {
+                title: newCategory.title,
+                icon: newCategory.icon || 'faBriefcase',
+                contents: []
+            });
+            setCategories([...categories, response.data]);
+            setNewCategory({ title: '', icon: '' });
+            showToast('Категория успешно добавлена');
+        } catch (error) {
+            console.error('Error adding category:', error);
+            showToast('Ошибка при добавлении категории');
+        }
+    };
+
+    const handleDeleteCategory = async (categoryId) => {
+        if (window.confirm('Вы уверены, что хотите удалить эту категорию?')) {
+            try {
+                await axios.delete(`${API_URL}/${categoryId}`);
+                setCategories(categories.filter(c => c.id !== categoryId));
+                showToast('Категория успешно удалена');
+            } catch (error) {
+                console.error('Error deleting category:', error);
+                showToast('Ошибка при удалении категории');
+            }
+        }
+    };
+
+    const handleAddContent = async () => {
+        if (!selectedCategory || !newContent.uzbek.trim() || !newContent.russian.trim()) return;
+
+        try {
+            const category = categories.find(c => c.id === selectedCategory);
+            const updatedContents = [
+                ...category.contents,
+                { id: Date.now().toString(), ...newContent }
+            ];
+            const response = await axios.put(`${API_URL}/${selectedCategory}`, {
+                ...category,
+                contents: updatedContents
+            });
+            setCategories(categories.map(c => c.id === selectedCategory ? response.data : c));
+            setNewContent({ uzbek: '', russian: '' });
+            showToast('Контент успешно добавлен');
+        } catch (error) {
+            console.error('Error adding content:', error);
+            showToast('Ошибка при добавлении контента');
+        }
+    };
+
+    const handleDeleteContent = async (categoryId, contentId) => {
+        try {
+            const category = categories.find(c => c.id === categoryId);
+            const updatedContents = category.contents.filter(content => content.id !== contentId);
+            const response = await axios.put(`${API_URL}/${categoryId}`, {
+                ...category,
+                contents: updatedContents
+            });
+            setCategories(categories.map(c => c.id === categoryId ? response.data : c));
+            showToast('Контент успешно удален');
+        } catch (error) {
+            console.error('Error deleting content:', error);
+            showToast('Ошибка при удалении контента');
+        }
+    };
+
     const handleCopyText = (text) => {
         navigator.clipboard.writeText(text).then(() => {
             showToast('Текст скопирован в буфер обмена');
         });
-    };
-
-    const handleAddCategory = () => {
-        if (!newCategory.title.trim()) return;
-        
-        setCategories(prevCategories => [
-            ...prevCategories,
-            {
-                id: Date.now().toString(),
-                title: newCategory.title,
-                icon: newCategory.icon || 'faFolder',
-                contents: []
-            }
-        ]);
-        
-        setNewCategory({ title: '', icon: '' });
-        showToast('Категория успешно добавлена');
-    };
-
-    const handleDeleteCategory = (categoryId) => {
-        if (window.confirm('Вы уверены, что хотите удалить эту категорию?')) {
-            setCategories(prevCategories => 
-                prevCategories.filter(c => c.id !== categoryId)
-            );
-            showToast('Категория успешно удалена');
-        }
-    };
-
-    const handleAddContent = () => {
-        if (!selectedCategory || !newContent.uzbek.trim() || !newContent.russian.trim()) return;
-
-        setCategories(prevCategories => 
-            prevCategories.map(category => {
-                if (category.id === selectedCategory) {
-                    return {
-                        ...category,
-                        contents: [...category.contents, {
-                            id: Date.now().toString(),
-                            uzbek: newContent.uzbek,
-                            russian: newContent.russian
-                        }]
-                    };
-                }
-                return category;
-            })
-        );
-
-        setNewContent({ uzbek: '', russian: '' });
-        showToast('Контент успешно добавлен');
-    };
-
-    const handleDeleteContent = (categoryId, contentId) => {
-        setCategories(prevCategories => 
-            prevCategories.map(category => {
-                if (category.id === categoryId) {
-                    return {
-                        ...category,
-                        contents: category.contents.filter(content => content.id !== contentId)
-                    };
-                }
-                return category;
-            })
-        );
-        showToast('Контент успешно удален');
     };
 
     const handleChatSubmit = async (e) => {
@@ -148,20 +145,8 @@ export default function Request() {
         setIsLoading(true);
 
         try {
-            const response = await fetch('/api/chatgpt', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ text: chatInput }),
-            });
-
-            if (!response.ok) {
-                throw new Error('Ошибка при обработке запроса');
-            }
-
-            const data = await response.json();
-            setChatOutput(data.result);
+            const response = await axios.post('/api/chatgpt', { text: chatInput });
+            setChatOutput(response.data.result);
         } catch (error) {
             console.error('Ошибка:', error);
             setChatOutput('Произошла ошибка при обработке вашего запроса.');
@@ -177,12 +162,6 @@ export default function Request() {
             console.error('Ошибка при копировании текста: ', err);
             showToast('Ошибка при копировании текста');
         });
-    };
-
-    const handleChatSave = () => {
-        // Здесь будет логика сохранения в базу данных
-        console.log('Сохранение в базу данных:', { chatInput, chatOutput });
-        showToast('Результат сохранен');
     };
 
     return (
@@ -230,7 +209,7 @@ export default function Request() {
                                 className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow"
                             >
                                 <FontAwesomeIcon
-                                    icon={category.icon}
+                                    icon={iconMap[category.icon]}
                                     className="text-4xl text-green-600 mb-4"
                                 />
                                 <h3 className="text-xl font-medium mb-4">{category.title}</h3>
@@ -328,13 +307,6 @@ export default function Request() {
                                         <FontAwesomeIcon icon={faCopy} className="mr-2" />
                                         Копировать
                                     </button>
-                                    <button
-                                        onClick={handleChatSave}
-                                        className="bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 px-4 rounded-lg transition duration-300 flex items-center"
-                                    >
-                                        <FontAwesomeIcon icon={faSave} className="mr-2" />
-                                        Сохранить
-                                    </button>
                                 </div>
                             </div>
                         )}
@@ -348,10 +320,10 @@ export default function Request() {
                                 height: 24px;
                                 animation: spin 1s linear infinite;
                             }
-                            @keyframes spin{
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
+                            @keyframes spin {
+                                0% { transform: rotate(0deg); }
+                                100% { transform: rotate(360deg); }
+                            }
                         `}</style>
                     </div>
                 )}
@@ -372,6 +344,14 @@ export default function Request() {
                                     placeholder="Название категории"
                                     className="flex-1 px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                                 />
+                                <select
+                                    value={newCategory.icon}
+                                    onChange={(e) => setNewCategory({ ...newCategory, icon: e.target.value })}
+                                    className="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                                >
+                                    <option value="faBriefcase">Портфель</option>
+                                    <option value="faExchangeAlt">Обмен</option>
+                                </select>
                                 <button
                                     onClick={handleAddCategory}
                                     className="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors flex items-center gap-2"
