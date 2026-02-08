@@ -1,15 +1,22 @@
+'use client';
+
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { FaComments } from 'react-icons/fa';
 
-export default function ChatComponent({ isDarkMode }) {
-  const [messages, setMessages] = useState([]);
+export default function ChatComponent({ isDarkMode, welcomeText }) {
+  const [messages, setMessages] = useState(
+    welcomeText 
+      ? [{ user: 'Мадияр', message: welcomeText, timestamp: new Date().toISOString() }]
+      : []
+  );
   const [newMessage, setNewMessage] = useState('');
   const [userName, setUserName] = useState('');
   const [isOpen, setIsOpen] = useState(false);
 
-  const TELEGRAM_BOT_TOKEN = '6885114225:AAHu4XrUgwGGmI9KVFkwWrmonE15zneoXtA'; // Замените на ваш токен
-  const CHAT_ID = '7097688087'; // Замените на ваш chat_id
+  const TELEGRAM_BOT_TOKEN = process.env.REACT_APP_TELEGRAM_BOT_TOKEN;
+  const CHAT_ID = process.env.REACT_APP_TELEGRAM_CHAT_ID;
+
 
   useEffect(() => {
     // Здесь можно добавить логику для загрузки предыдущих сообщений

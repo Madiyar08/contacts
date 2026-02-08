@@ -1,8 +1,12 @@
+'use client';
+
 import { useEffect, useState } from "react";
 import Market from "./components/Market";
 import ChatComponent from "./components/ChatComponent";
+import Login from "./components/Login";
 import axios from "axios";
-import { FaSun, FaMoon } from "react-icons/fa";
+import { FaSun, FaMoon} from "react-icons/fa";
+import { ImExit } from "react-icons/im";
 
 export default function Component() {
   const [market, setMarket] = useState([]);
@@ -11,6 +15,9 @@ export default function Component() {
   const [flo, setFlo] = useState([]);
   const [redtag, setRedtag] = useState([]);
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  
   const IsNotNumber = "Нет";
   const headers = {
     "Content-Type": "application/json",
@@ -19,11 +26,19 @@ export default function Component() {
     headers: headers,
   };
 
+  // Проверка авторизации при загрузке
   useEffect(() => {
+    const loggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    setIsLoggedIn(loggedIn);
+  }, []);
+
+  useEffect(() => {
+    if (!isLoggedIn) return;
+
     axios
       .get("https://market-contacts-api.onrender.com/api/markets/", config)
       .then(function (response) {
-        console.log(response.data)
+        console.log("[v0] Markets data received:", response.data)
         if (Array.isArray(response.data)) {
           const korzinkaMarkets = response.data.filter(
             (korzinkaMarkets) => korzinkaMarkets.market_format === "Korzinka"
@@ -45,23 +60,50 @@ export default function Component() {
           setDiskont(diskont);
           setFlo(flo);
           setRedtag(redtag);
+          setIsLoading(false);
         } else {
           console.error("Expected an array but got:", response.data);
+          setIsLoading(false);
         }
       })
       .catch(function (error) {
-        console.log(error);
+        console.log("[v0] Error fetching markets:", error);
+        setIsLoading(false);
       });
-  }, []);
+  }, [isLoggedIn]);
 
   const toggleDarkMode = () => {
     setIsDarkMode(!isDarkMode);
   };
 
-  const [isLoading, setIsLoading] = useState(true);
-  useEffect(() => {
-    setTimeout(() => setIsLoading(false), 2000);
-  }, []);
+  const handleLogout = () => {
+    localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('username');
+    setIsLoggedIn(false);
+  };
+
+  const handleLoginSuccess = () => {
+    setIsLoggedIn(true);
+  };
+
+  // Показываем экран логина, если пользователь не авторизован
+  if (!isLoggedIn) {
+    return <Login onLoginSuccess={handleLoginSuccess} />;
+  }
+
+  // Показываем загрузку, если данные загружаются
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+        <div className="text-center">
+          <div className="mb-4">
+            <div className="inline-block animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600"></div>
+          </div>
+          <p className="text-gray-600 text-lg">Загрузка данных маркетов...</p>
+        </div>
+      </div>
+    );
+  }
 
 
   return (
@@ -94,66 +136,133 @@ export default function Component() {
             Контактные номера магазинов
           </h1>
         </div>
-        <button
-          onClick={toggleDarkMode}
-          className={`p-2 rounded-full ${
-            isDarkMode
-              ? "bg-yellow-400 text-gray-900"
-              : "bg-gray-800 text-white"
-          } flex items-center justify-center`}
-        >
-          {isDarkMode ? (
-            <FaSun className="w-6 h-6" />
-          ) : (
-            <FaMoon className="w-6 h-6" />
-          )}
-        </button>
+        <div className="flex items-center space-x-4">
+          <button
+            onClick={toggleDarkMode}
+            className={`p-2 rounded-full ${
+              isDarkMode
+                ? "bg-yellow-400 text-gray-900"
+                : "bg-gray-800 text-white"
+            } flex items-center justify-center`}
+          >
+            {isDarkMode ? (
+              <FaSun className="w-6 h-6" />
+            ) : (
+              <FaMoon className="w-6 h-6" />
+            )}
+          </button>
+          <button
+           
+            className="bg-red-600 hover:bg-red-700 text-white font-bold py-1 px-2 rounded"
+          >
+            <ImExit  onClick={handleLogout} className="text-2xl" />
+          </button>
+        </div>
       </header>
 
-      <div
-        className={`grid grid-cols-8 ${
-          isDarkMode ? "bg-gray-700" : "bg-blue-300"
-        } text-center text-sm font-bold`}
-      >
-        <div className="border p-2">№</div>
-        <div className="border p-2">Маркет</div>
-        <div className="border p-2">Менеджер магазина</div>
-        <div className="border p-2">
-          Заведующий залом <br />
-          1-смена
-        </div>
-        <div className="border p-2">
-          Заведующий залом <br />
-          2-смена
-        </div>
-        <div className="border p-2">
-          Заведующий залом 3-смена или <br /> Старший Кассир <br />
-        </div>
-        <div className="border p-2">Городской и гриль</div>
-        <div className="border p-2">Дополнительная информация</div>
-      </div>
-
-      <div
-        className={`flex justify-center ${
-          isDarkMode ? "bg-gray-800" : "bg-red-100"
-        } p-4`}
-      >
-        <h1
-          className={`${
-            isDarkMode ? "text-red-400" : "text-red-600"
-          } font-bold text-3xl`}
+      <div className="px-8">
+        <div
+          className={`grid grid-cols-7 ${
+            isDarkMode ? "bg-gray-700" : "bg-blue-300"
+          } text-center text-sm font-bold`}
         >
-          Korzinka
-        </h1>
+         
+          <div className="border p-2">Маркет</div>
+          <div className="border p-2">Менеджер магазина</div>
+          <div className="border p-2">
+            Заведующий залом <br />
+            1-смена
+          </div>
+          <div className="border p-2">
+            Заведующий залом <br />
+            2-смена
+          </div>
+          <div className="border p-2">
+            Заведующий залом 3-смена или <br /> Старший Кассир <br />
+          </div>
+          <div className="border p-2">Городской и гриль</div>
+          <div className="border p-2">Дополнительная информация</div>
+        </div>
       </div>
 
-      <div className="flex-grow overflow-auto">
+      <div className="px-8">
+        <div
+          className={`flex justify-center ${
+            isDarkMode ? "bg-gray-800" : "bg-red-100"
+          } p-4`}
+        >
+          <h1
+            className={`${
+              isDarkMode ? "text-red-400" : "text-red-600"
+            } font-bold text-3xl`}
+          >
+            Korzinka
+          </h1>
+        </div>
+
+        <div className="flex-grow overflow-auto">
+          {
+            (market != null &&
+            market.map((market, index) => (
+              <Market
+                isDarkMode={isDarkMode}
+                key={market.id}
+                number={index + 1}
+                id={market.id}
+                market_name={market.market_name}
+                market_address={market.market_address}
+                market_orientation={market.market_orientation}
+                market_work_time={market.market_work_time}
+                market_grill={
+                  market.market_grill ? `9.${market.market_grill}` : IsNotNumber
+                }
+                market_phone={
+                  market.market_phone ? `9.${market.market_phone} ` : IsNotNumber
+                }
+                manager_full_name={market.manager_full_name}
+                manager_phone={`9.${market.manager_phone}`}
+                manager_work_time={market.manager_work_time}
+                manager_day_off={market.manager_day_off}
+                supervisor_one_full_name={market.supervisor_one_full_name}
+                supervisor_one_phone={`9.${market.supervisor_one_phone}`}
+                supervisor_one_work_time={market.supervisor_one_work_time}
+                supervisor_one_day_off={market.supervisor_one_day_off}
+                supervisor_two_full_name={market.supervisor_two_full_name}
+                supervisor_two_phone={`9.${market.supervisor_two_phone}`}
+                supervisor_two_work_time={market.supervisor_two_work_time}
+                supervisor_two_day_off={market.supervisor_two_day_off}
+                supervisor_three_full_name={market.supervisor_three_full_name}
+                supervisor_three_work_time={market.supervisor_three_work_time}
+                supervisor_three_day_off={market.supervisor_three_day_off}
+                supervisor_three_phone={`9.${market.supervisor_three_phone}`}
+                additional_info={market.additional_info}
+                updated_at={market.updated_at}
+              />
+            )))
+          }
+        </div>
+
+        <div
+          className={`flex justify-center ${
+            isDarkMode ? "bg-gray-800" : "bg-green-100"
+          } p-4`}
+        >
+          <h1
+            className={`${
+              isDarkMode ? "text-green-400" : "text-green-600"
+            } font-bold text-3xl`}
+          >
+            Mahalla
+          </h1>
+        </div>
+
         {
-          (market != null,
-          market.map((market) => (
+          (mahalla != null &&
+          mahalla.map((market, index) => (
             <Market
               isDarkMode={isDarkMode}
               key={market.id}
+              number={market.length + index + 1}
               id={market.id}
               market_name={market.market_name}
               market_address={market.market_address}
@@ -186,232 +295,77 @@ export default function Component() {
             />
           )))
         }
-      </div>
 
-      <div
-        className={`flex justify-center ${
-          isDarkMode ? "bg-gray-800" : "bg-green-100"
-        } p-4`}
-      >
-        <h1
-          className={`${
-            isDarkMode ? "text-green-400" : "text-green-600"
-          } font-bold text-3xl`}
+        <div
+          className={`flex justify-center ${
+            isDarkMode ? "bg-gray-800" : "bg-yellow-100"
+          } p-4`}
         >
-          Mahalla
-        </h1>
-      </div>
+          <h1
+            className={`${
+              isDarkMode ? "text-yellow-400" : "text-yellow-600"
+            } font-bold text-3xl`}
+          >
+            Diskont
+          </h1>
+        </div>
+        {
+          (diskont != null &&
+          diskont.map((market, index) => (
+            <Market
+              isDarkMode={isDarkMode}
+              key={market.id}
+              number={market.length + mahalla.length + index + 1}
+              id={market.id}
+              market_name={market.market_name}
+              market_address={market.market_address}
+              market_orientation={market.market_orientation}
+              market_work_time={market.market_work_time}
+              market_grill={
+                market.market_grill ? `9.${market.market_grill}` : IsNotNumber
+              }
+              market_phone={
+                market.market_phone ? `9.${market.market_phone} ` : IsNotNumber
+              }
+              manager_full_name={market.manager_full_name}
+              manager_phone={`9.${market.manager_phone}`}
+              manager_work_time={market.manager_work_time}
+              manager_day_off={market.manager_day_off}
+              supervisor_one_full_name={market.supervisor_one_full_name}
+              supervisor_one_phone={`9.${market.supervisor_one_phone}`}
+              supervisor_one_work_time={market.supervisor_one_work_time}
+              supervisor_one_day_off={market.supervisor_one_day_off}
+              supervisor_two_full_name={market.supervisor_two_full_name}
+              supervisor_two_phone={`9.${market.supervisor_two_phone}`}
+              supervisor_two_work_time={market.supervisor_two_work_time}
+              supervisor_two_day_off={market.supervisor_two_day_off}
+              supervisor_three_full_name={market.supervisor_three_full_name}
+              supervisor_three_work_time={market.supervisor_three_work_time}
+              supervisor_three_day_off={market.supervisor_three_day_off}
+              supervisor_three_phone={`9.${market.supervisor_three_phone}`}
+              additional_info={market.additional_info}
+              updated_at={market.updated_at}
+            />
+          )))
+        }
+       
 
-      {
-        (mahalla != null,
-        mahalla.map((market) => (
-          <Market
-            isDarkMode={isDarkMode}
-            key={market.id}
-            id={market.id}
-            market_name={market.market_name}
-            market_address={market.market_address}
-            market_orientation={market.market_orientation}
-            market_work_time={market.market_work_time}
-            market_grill={
-              market.market_grill ? `9.${market.market_grill}` : IsNotNumber
-            }
-            market_phone={
-              market.market_phone ? `9.${market.market_phone} ` : IsNotNumber
-            }
-            manager_full_name={market.manager_full_name}
-            manager_phone={`9.${market.manager_phone}`}
-            manager_work_time={market.manager_work_time}
-            manager_day_off={market.manager_day_off}
-            supervisor_one_full_name={market.supervisor_one_full_name}
-            supervisor_one_phone={`9.${market.supervisor_one_phone}`}
-            supervisor_one_work_time={market.supervisor_one_work_time}
-            supervisor_one_day_off={market.supervisor_one_day_off}
-            supervisor_two_full_name={market.supervisor_two_full_name}
-            supervisor_two_phone={`9.${market.supervisor_two_phone}`}
-            supervisor_two_work_time={market.supervisor_two_work_time}
-            supervisor_two_day_off={market.supervisor_two_day_off}
-            supervisor_three_full_name={market.supervisor_three_full_name}
-            supervisor_three_work_time={market.supervisor_three_work_time}
-            supervisor_three_day_off={market.supervisor_three_day_off}
-            supervisor_three_phone={`9.${market.supervisor_three_phone}`}
-            additional_info={market.additional_info}
-            updated_at={market.updated_at}
-          />
-        )))
-      }
-
-      <div
-        className={`flex justify-center ${
-          isDarkMode ? "bg-gray-800" : "bg-yellow-100"
-        } p-4`}
-      >
-        <h1
-          className={`${
-            isDarkMode ? "text-yellow-400" : "text-yellow-600"
-          } font-bold text-3xl`}
+        <div
+          className={`flex justify-center ${
+            isDarkMode ? "bg-gray-800" : "bg-purple-100"
+          } p-4`}
         >
-          Diskont
-        </h1>
+          <h1
+            className={`${
+              isDarkMode ? "text-purple-400" : "text-purple-600"
+            } font-bold text-3xl`}
+          >
+            FRANCHISE
+          </h1>
+        </div>
+        
       </div>
-      {
-        (diskont != null,
-        diskont.map((market) => (
-          <Market
-            isDarkMode={isDarkMode}
-            key={market.id}
-            id={market.id}
-            market_name={market.market_name}
-            market_address={market.market_address}
-            market_orientation={market.market_orientation}
-            market_work_time={market.market_work_time}
-            market_grill={
-              market.market_grill ? `9.${market.market_grill}` : IsNotNumber
-            }
-            market_phone={
-              market.market_phone ? `9.${market.market_phone} ` : IsNotNumber
-            }
-            manager_full_name={market.manager_full_name}
-            manager_phone={`9.${market.manager_phone}`}
-            manager_work_time={market.manager_work_time}
-            manager_day_off={market.manager_day_off}
-            supervisor_one_full_name={market.supervisor_one_full_name}
-            supervisor_one_phone={`9.${market.supervisor_one_phone}`}
-            supervisor_one_work_time={market.supervisor_one_work_time}
-            supervisor_one_day_off={market.supervisor_one_day_off}
-            supervisor_two_full_name={market.supervisor_two_full_name}
-            supervisor_two_phone={`9.${market.supervisor_two_phone}`}
-            supervisor_two_work_time={market.supervisor_two_work_time}
-            supervisor_two_day_off={market.supervisor_two_day_off}
-            supervisor_three_full_name={market.supervisor_three_full_name}
-            supervisor_three_work_time={market.supervisor_three_work_time}
-            supervisor_three_day_off={market.supervisor_three_day_off}
-            supervisor_three_phone={`9.${market.supervisor_three_phone}`}
-            additional_info={market.additional_info}
-            updated_at={market.updated_at}
-          />
-        )))
-      }
-      <div
-        className={`flex justify-center ${
-          isDarkMode ? "bg-gray-800" : "bg-red-100"
-        } p-4`}
-      >
-        <h1
-          className={`${
-            isDarkMode ? "text-red-400" : "text-red-600"
-          } font-bold text-3xl`}
-        >
-          REDTAG
-        </h1>
-      </div>
-      {
-        (redtag != null,
-        redtag.map((market) => (
-          <Market
-            isDarkMode={isDarkMode}
-            key={market.id}
-            id={market.id}
-            market_name={market.market_name}
-            market_address={market.market_address}
-            market_orientation={market.market_orientation}
-            market_work_time={market.market_work_time}
-            market_grill={
-              market.market_grill ? `9.${market.market_grill}` : IsNotNumber
-            }
-            market_phone={
-              market.market_phone ? `9.${market.market_phone} ` : IsNotNumber
-            }
-            manager_full_name={market.manager_full_name}
-            manager_phone={`9.${market.manager_phone}`}
-            manager_work_time={market.manager_work_time}
-            manager_day_off={market.manager_day_off}
-            supervisor_one_full_name={market.supervisor_one_full_name}
-            supervisor_one_phone={`9.${market.supervisor_one_phone}`}
-            supervisor_one_work_time={market.supervisor_one_work_time}
-            supervisor_one_day_off={market.supervisor_one_day_off}
-            supervisor_two_full_name={market.supervisor_two_full_name}
-            supervisor_two_phone={`9.${market.supervisor_two_phone}`}
-            supervisor_two_work_time={market.supervisor_two_work_time}
-            supervisor_two_day_off={market.supervisor_two_day_off}
-            supervisor_three_full_name={market.supervisor_three_full_name}
-            supervisor_three_work_time={market.supervisor_three_work_time}
-            supervisor_three_day_off={market.supervisor_three_day_off}
-            supervisor_three_phone={`9.${market.supervisor_three_phone}`}
-            additional_info={market.additional_info}
-            updated_at={market.updated_at}
-          />
-        )))
-      }
-      <div
-        className={`flex justify-center ${
-          isDarkMode ? "bg-gray-800" : "bg-orange-100"
-        } p-4`}
-      >
-        <h1
-          className={`${
-            isDarkMode ? "text-orange-400" : "text-orange-600"
-          } font-bold text-3xl`}
-        >
-          FLO
-        </h1>
-      </div>
-      {
-        (flo != null,
-        flo.map((market) => (
-          <Market
-            isDarkMode={isDarkMode}
-            key={market.id}
-            id={market.id}
-            market_name={market.market_name}
-            market_address={market.market_address}
-            market_orientation={market.market_orientation}
-            market_work_time={market.market_work_time}
-            market_grill={
-              market.market_grill ? `9.${market.market_grill}` : IsNotNumber
-            }
-            market_phone={
-              market.market_phone ? `9.${market.market_phone} ` : IsNotNumber
-            }
-            manager_full_name={market.manager_full_name}
-            manager_phone={`9.${market.manager_phone}`}
-            manager_work_time={market.manager_work_time}
-            manager_day_off={market.manager_day_off}
-            supervisor_one_full_name={market.supervisor_one_full_name}
-            supervisor_one_phone={`9.${market.supervisor_one_phone}`}
-            supervisor_one_work_time={market.supervisor_one_work_time}
-            supervisor_one_day_off={market.supervisor_one_day_off}
-            supervisor_two_full_name={market.supervisor_two_full_name}
-            supervisor_two_phone={`9.${market.supervisor_two_phone}`}
-            supervisor_two_work_time={market.supervisor_two_work_time}
-            supervisor_two_day_off={market.supervisor_two_day_off}
-            supervisor_three_full_name={market.supervisor_three_full_name}
-            supervisor_three_work_time={market.supervisor_three_work_time}
-            supervisor_three_day_off={market.supervisor_three_day_off}
-            supervisor_three_phone={`9.${market.supervisor_three_phone}`}
-            additional_info={market.additional_info}
-            updated_at={market.updated_at}
-          />
-        )))
-      }
-
-      <div
-        className={`flex justify-center ${
-          isDarkMode ? "bg-gray-800" : "bg-purple-100"
-        } p-4`}
-      >
-        <h1
-          className={`${
-            isDarkMode ? "text-purple-400" : "text-purple-600"
-          } font-bold text-3xl`}
-        >
-          FRANCHISE
-        </h1>
-      </div>
-      <p className="text-red-500 text-xl font-bold my-5 mx-auto">
-        Скоро тут появится данные франшиз!
-      </p>
-      <ChatComponent isDarkMode={isDarkMode} />
+      <ChatComponent isDarkMode={isDarkMode} welcomeText="Напишите своё полное имя и проблему!!!" />
     </div>
   );
 }

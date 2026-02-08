@@ -5,7 +5,7 @@ function CopyButton({ textToCopy, isDarkMode }) {
   const handleCopy = () => {
     navigator.clipboard.writeText(textToCopy)
       .then(() => {
-        setTimeout(() => alert('Текст скопирован!'), 500);;
+        setTimeout(() => alert('Текст скопирован!'), 200);;
       })
       .catch(err => {
         console.error('Ошибка при копировании: ', err);
