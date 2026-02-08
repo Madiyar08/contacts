@@ -9,6 +9,9 @@ export default function ChatComponent({ isDarkMode, welcomeText }) {
     welcomeText 
       ? [{ user: 'Мадияр', message: welcomeText, timestamp: new Date().toISOString() }]
       : []
+
+
+      
   );
   const [newMessage, setNewMessage] = useState('');
   const [userName, setUserName] = useState('');
