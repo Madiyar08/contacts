@@ -15,8 +15,9 @@ const Login = ({ onLoginSuccess }) => {
 
 
   useEffect(() => {
-    checkIP();
-  }, []);
+  checkIP();
+}, [checkIP]);
+
 
   const checkIP = async () => {
     try {

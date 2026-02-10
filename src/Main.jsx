@@ -12,8 +12,6 @@ export default function Component() {
   const [market, setMarket] = useState([]);
   const [diskont, setDiskont] = useState([]);
   const [mahalla, setMahalla] = useState([]);
-  const [flo, setFlo] = useState([]);
-  const [redtag, setRedtag] = useState([]);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
