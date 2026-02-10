@@ -1,47 +1,31 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 
 const Login = ({ onLoginSuccess }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const [ipError, setIpError] = useState('');
-  const [isLoading, setIsLoading] = useState(true);
 
-  const ALLOWED_IP = process.env.REACT_APP_ALLOWED_IP;
   const VALID_USERNAME = process.env.REACT_APP_VALID_USERNAME;
   const VALID_PASSWORD = process.env.REACT_APP_VALID_PASSWORD;
-
-
-  useEffect(() => {
-  checkIP();
-}, [checkIP]);
-
-
-  const checkIP = async () => {
-    try {
-      // Пытаемся получить IP пользователя
-      const response = await fetch('https://api.ipify.org?format=json');
-      const data = await response.json();
-      const userIP = data.ip;
-      
-      console.log('[v0] User IP:', userIP, 'Allowed IP:', ALLOWED_IP);
-
-      if (userIP !== ALLOWED_IP) {
-        setIpError(`Доступ запрещен. Этот сайт доступен только с офиса. Ваш IP: ${userIP}`);
-      }
-    } catch (err) {
-      console.error('[v0] Error checking IP:', err);
-      setIpError('Ошибка при проверке IP адреса');
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setIsLoading(true);
+
+    // Simulate IP check
+    const userIp = '192.168.1.1'; // Replace with actual IP check logic
+    const allowedIp = '192.168.1.1'; // Replace with actual allowed IP
+
+    if (userIp !== allowedIp) {
+      setIpError('Доступ запрещен из вашей сети');
+      setIsLoading(false);
+      return;
+    }
 
     if (username === VALID_USERNAME && password === VALID_PASSWORD) {
       // Сохраняем информацию о входе в localStorage
@@ -51,37 +35,10 @@ const Login = ({ onLoginSuccess }) => {
     } else {
       setError('Неверное имя пользователя или пароль');
     }
+    setIsLoading(false);
   };
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-100">
-        <div className="text-center">
-          <div className="mb-4">
-            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-          </div>
-          <p className="text-gray-600">Проверка доступа...</p>
-        </div>
-      </div>
-    );
-  }
 
-  if (ipError) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-red-50 to-red-100">
-        <div className="bg-white p-8 rounded-lg shadow-lg w-96 border-2 border-red-300">
-          <div className="text-center mb-4">
-            <div className="text-5xl mb-4">🚫</div>
-            <h1 className="text-2xl font-bold text-red-600 mb-2">Доступ запрещен</h1>
-            <p className="text-gray-700">{ipError}</p>
-          </div>
-          <div className="text-sm text-gray-500 mt-4 text-center">
-            Пожалуйста, откройте эту страницу только с сети офиса.
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">

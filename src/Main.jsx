@@ -47,17 +47,10 @@ export default function Component() {
           const diskont = response.data.filter(
             (diskont) => diskont.market_format === "Korzinka Diskont"
           );
-          const flo = response.data.filter(
-            (flo) => flo.market_format === "FLO"
-          );
-          const redtag = response.data.filter(
-            (redtag) => redtag.market_format === "REDTAG"
-          );
           setMarket(korzinkaMarkets);
           setMahalla(mahalla);
           setDiskont(diskont);
-          setFlo(flo);
-          setRedtag(redtag);
+          
           setIsLoading(false);
         } else {
           console.error("Expected an array but got:", response.data);
