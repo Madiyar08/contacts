@@ -17,8 +17,8 @@ export default function ChatComponent({ isDarkMode, welcomeText }) {
   const [userName, setUserName] = useState('');
   const [isOpen, setIsOpen] = useState(false);
 
-  const TELEGRAM_BOT_TOKEN = process.env.REACT_APP_TELEGRAM_BOT_TOKEN;
-  const CHAT_ID = process.env.REACT_APP_TELEGRAM_CHAT_ID;
+  const TELEGRAM_BOT_TOKEN = "6885114225:AAHu4XrUgwGGmI9KVFkwWrmonE15zneoXtA"
+  const CHAT_ID = "7097688087"
 
 
   useEffect(() => {
